@@ -1,19 +1,6 @@
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-
-let auth, db, storage;
-
-// Wait for global window objects to be populated by the HTML module
-const ensureFirebaseInitialized = setInterval(() => {
-    if (window.auth && window.db) {
-        auth = window.auth;
-        db = window.db;
-        // Storage is not requested in the global SDK, initialize it locally using the same app
-        storage = getStorage(window.auth.app);
-        clearInterval(ensureFirebaseInitialized);
-    }
-}, 50);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
 
 // Global State
 let currentUser = null;
@@ -272,7 +259,7 @@ navItems.forEach(item => {
 });
 
 // --- AUTHENTICATION GUARD ---
-onAuthStateChanged(auth, (user) => {
+auth.onAuthStateChanged((user) => {
     if (!user) {
         // Enforce login strictly
         window.location.href = 'index.html';
@@ -283,9 +270,9 @@ onAuthStateChanged(auth, (user) => {
         if (profileEmailEl) profileEmailEl.value = user.email || 'user@maduraicorp.gov.in';
 
         // Load user profile details
-        const userDocRef = doc(db, "users", user.uid);
-        getDoc(userDocRef).then((docSnap) => {
-            if (docSnap.exists()) {
+        const userDocRef = db.collection("users").doc(user.uid);
+        userDocRef.get().then((docSnap) => {
+            if (docSnap.exists) {
                 const data = docSnap.data();
                 if (data.userName && profileUserName) profileUserName.value = data.userName;
                 if (data.phone && profilePhone) profilePhone.value = data.phone;
@@ -298,7 +285,7 @@ onAuthStateChanged(auth, (user) => {
                 }
             } else {
                 // Initialize doc with email
-                setDoc(userDocRef, { email: user.email }, { merge: true }).catch(console.error);
+                userDocRef.set({ email: user.email }, { merge: true }).catch(console.error);
             }
         }).catch(err => console.log("DB Disabled mapping fallback: ", err));
     }
@@ -313,11 +300,11 @@ if (saveProfileBtn) {
         profileSaveStatus.style.display = 'none';
 
         try {
-            await setDoc(doc(db, "users", currentUser.uid), {
+            await db.collection("users").doc(currentUser.uid).set({
                 userName: profileUserName.value.trim(),
                 phone: profilePhone.value.trim(),
                 address: profileAddress.value.trim(),
-                updatedAt: serverTimestamp()
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             }, { merge: true });
 
             profileSaveStatus.style.display = 'inline-flex';
@@ -349,12 +336,12 @@ if (profileAvatarInput) {
 
         // Upload to Storage
         try {
-            const avatarRef = storageRef(storage, `users/${currentUser.uid}/avatar_${Date.now()}`);
-            const uploadTask = await uploadBytesResumable(avatarRef, file);
-            const downloadUrl = await getDownloadURL(uploadTask.ref);
+            const avatarRef = storage.ref(`users/${currentUser.uid}/avatar_${Date.now()}`);
+            const uploadTask = await avatarRef.put(file);
+            const downloadUrl = await uploadTask.ref.getDownloadURL();
 
             // Save URL to Firestore
-            await setDoc(doc(db, "users", currentUser.uid), { avatarUrl: downloadUrl }, { merge: true });
+            await db.collection("users").doc(currentUser.uid).set({ avatarUrl: downloadUrl }, { merge: true });
         } catch (err) {
             console.error("Avatar upload failed:", err);
             // Non-blocking error since the visual preview works
@@ -367,14 +354,14 @@ const menuLogoutBtn = document.getElementById('menuLogoutBtn');
 if (menuLogoutBtn) {
     menuLogoutBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        signOut(auth).then(() => {
+        auth.signOut().then(() => {
             window.location.href = 'splash.html';
         });
     });
 } else {
     // Fallback for old header button if it still exists
     logoutBtn.addEventListener('click', () => {
-        signOut(auth).then(() => {
+        auth.signOut().then(() => {
             window.location.href = 'splash.html';
         });
     });

@@ -1,17 +1,7 @@
-// Relying on Global Firebase SDK from index.html <head>
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-let auth, googleProvider, db;
-
-// Wait for global window objects to be populated by the HTML module
-const ensureFirebaseInitialized = setInterval(() => {
-    if (window.auth && window.db) {
-        auth = window.auth;
-        db = window.db;
-        googleProvider = new GoogleAuthProvider();
-        clearInterval(ensureFirebaseInitialized);
-    }
-}, 50);
+// Initialize Firebase services using Compat SDK
+const auth = firebase.auth();
+const db = firebase.firestore();
+const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -62,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 console.log("Logged in user:", userCredential.user);
                 // Redirect to dashboard page
                 window.location.href = "dashboard.html";
@@ -89,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                const result = await signInWithPopup(auth, googleProvider);
+                const result = await auth.signInWithPopup(googleProvider);
                 console.log("Google Logged in user:", result.user);
                 window.location.href = "dashboard.html";
             } catch (error) {

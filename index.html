@@ -80,14 +80,11 @@
 
     <script src="lang.js"></script>
     <!-- Firebase SDK Setup -->
-    <script type="module" src="auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp }
-            from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
+    <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAHzSiktHAVuiEuaiQiWG5a-eZOAH4qts8",
             authDomain: "thoomai-puratchi.firebaseapp.com",
@@ -97,19 +94,10 @@
             appId: "1:353671859375:web:acf1aa6383f3f6e2a9985a",
             measurementId: "G-Y4JKVZ986E"
         };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
-        // Make db and auth global so other scripts can use them
-        window.db = db;
-        window.auth = auth;
+        firebase.initializeApp(firebaseConfig);
         window.firebaseConfig = firebaseConfig;
-        window.addDoc = addDoc;
-        window.collection = collection;
-        window.serverTimestamp = serverTimestamp;
     </script>
+    <script src="auth.js"></script>
 
     <button id="submitReport"
         style="position: absolute; bottom: 20px; right: 20px; z-index: 1000; padding: 10px 20px; background: #2e7d32; color: white; border-radius: 8px; border: none; cursor: pointer;">Submit
@@ -123,10 +111,10 @@
                     submitBtn.textContent = 'Submitting...';
                     submitBtn.disabled = true;
                     try {
-                        const docRef = await window.addDoc(window.collection(window.db, "reports"), {
+                        const docRef = await firebase.firestore().collection("reports").add({
                             description: "Test Garbage Report UI",
                             status: "pending",
-                            createdAt: window.serverTimestamp()
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
                         console.log("Document written with ID: ", docRef.id);
                         submitBtn.textContent = 'Success!';
