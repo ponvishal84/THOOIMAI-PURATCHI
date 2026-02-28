@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Thooimai Puratchi</title>
+    <link rel="icon" href="app_logo.png">
+    <!-- Modern typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="dashboard.css">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Global Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup }
+            from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore }
+            from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAHzSiktHAVuiEuaiQiWG5a-eZOAH4qts8",
+            authDomain: "thoomai-puratchi.firebaseapp.com",
+            projectId: "thoomai-puratchi",
+            storageBucket: "thoomai-puratchi.firebasestorage.app",
+            messagingSenderId: "353671859375",
+            appId: "1:353671859375:web:acf1aa6383f3f6e2a9985a",
+            measurementId: "G-Y4JKVZ986E"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.auth = auth;
+        window.db = db;
+        window.firebaseConfig = firebaseConfig;
+    </script>
+</head>
+
+<body>
+    <!-- Top Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fa-solid fa-leaf text-green"></i>
+            <span>Thooimai Puratchi</span>
+        </div>
+        <div class="nav-user">
+            <button id="langToggleBtn" class="btn-ghost" aria-label="Language Toggle"
+                style="margin-right: 15px; font-weight: bold;">EN / த</button>
+            <button id="logoutBtn" class="btn-ghost" aria-label="Logout"><i
+                    class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+    </nav>
+
+    <main class="dashboard-content">
+
+        <!-- Header Section & User Stats -->
+        <header class="dashboard-header">
+            <div class="header-content" style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <h2>Welcome Back</h2>
+                    <p>GPS tracked reports ensure 100% verified cleanups.</p>
+                </div>
+                <div class="user-stats"
+                    style="text-align: right; background: rgba(46, 125, 50, 0.1); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(46, 125, 50, 0.2);">
+                    <div
+                        style="font-size: 13px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                        Your Rank</div>
+                    <div
+                        style="font-size: 24px; font-weight: 800; color: var(--primary-green); display: flex; align-items: center; gap: 5px;">
+                        <i class="fa-solid fa-medal" id="rankMedal" style="color: #cd7f32;"></i>
+                        <span id="userRank">Bronze</span>
+                    </div>
+                    <div style="font-size: 14px; font-weight: 600; margin-top: 2px;"><span id="userPoints">0</span> pts
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- VIEWS -->
+        <div id="viewHome" class="view-section active-view">
+            <div class="dashboard-content">
+
+                <!-- Madurai Welcome Banner -->
+                <div class="hero-banner"
+                    style="position: relative; width: 100%; height: 160px; border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                    <img src="madurai_banner.jpg" alt="Madurai Meenakshi Temple"
+                        style="width: 100%; height: 100%; object-fit: cover;">
+                    <div
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.1)); display: flex; flex-direction: column; justify-content: flex-end; padding: 15px;">
+                        <h2 style="color: white; font-size: 20px; margin: 0; font-weight: 700;">
+                            Protecting Madurai</h2>
+                        <p style="color: #e0e0e0; font-size: 13px; margin: 5px 0 0 0;">Together keeping
+                            the Temple City clean.</p>
+                    </div>
+                </div>
+
+                <!-- Metrics Challenge Card -->
+                <div class="metrics-card">
+                    <h3>Thooimai Puratchi Challenge</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 65%;"></div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <span class="metric-value" id="metricWaste">0 kg</span>
+                            <span class="metric-label">Total Waste Verified</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-value">1,204</span>
+                            <span class="metric-label">Active Volunteers</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-value" id="metricPoints">0</span>
+                            <span class="metric-label">Cleanup Points Earned</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Issues Feed -->
+                <section class="issues-feed">
+                    <h3 style="margin-bottom: 15px; font-size: 18px;">Local Cleanup Hotspots</h3>
+                    <div id="feedContainer" class="feed-container">
+                        <!-- Javascript will render report cards here -->
+                        <p class="empty-state">No active reports yet. Be the first to clean up your
+                            area!</p>
+                    </div>
+                </section>
+
+                <div style="height: 100px;"></div><!-- Padding for bottom nav -->
+    </main>
+    </div>
+
+    <div id="viewRewards" class="view-section hidden">
+        <main class="dashboard-content">
+            <div class="rewards-header">
+                <h2>Rewards and My Impact</h2>
+            </div>
+
+            <div class="coupon-card">
+                <div class="qr-placeholder">
+                    <i class="fa-solid fa-qrcode" style="font-size: 60px; color: #333;"></i>
+                </div>
+                <p>Secure Rewards: Verified Coupon for 10% off at participating local stores. Code:
+                    TPC-VERIFY-123.
+                    Expires: 31 Dec 2026.</p>
+                <button class="btn-redeem">Redeem Coupon</button>
+            </div>
+
+            <div class="impact-stats">
+                <div class="impact-stat-box">
+                    <i class="fa-solid fa-recycle text-green" style="font-size: 24px;"></i>
+                    <div>
+                        <div class="impact-label">Total Plastic Removed</div>
+                        <div class="impact-value">0 kg</div>
+                    </div>
+                </div>
+                <div class="impact-stat-box">
+                    <i class="fa-solid fa-star" style="color: #ffd700; font-size: 24px;"></i>
+                    <div>
+                        <div class="impact-label">Points Earned</div>
+                        <div class="impact-value" id="rewardsPoints">0 pts</div>
+                    </div>
+                </div>
+            </div>
+
+            <section class="recent-cleanups">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="font-size: 18px;">Recent Cleanups</h3>
+                    <a href="#" style="color: var(--info); font-size: 13px; text-decoration: none;">View
+                        All</a>
+                </div>
+                <div id="rewardsFeedContainer" class="rewards-feed">
+                    <p class="empty-state" style="padding: 20px;">No cleanups completed yet.</p>
+                </div>
+            </section>
+
+            <div style="height: 100px;"></div><!-- Padding for bottom nav -->
+        </main>
+    </div>
+
+    <div id="viewMap" class="view-section hidden">
+        <main class="dashboard-content" style="padding: 0; max-width: 100%;">
+            <!-- Map Container -->
+            <section class="map-section"
+                style="width: 100%; height: 300px; margin-bottom: 20px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div id="googleMap" style="width: 100%; height: 100%;"></div>
+            </section>
+        </main>
+    </div>
+    <div id="viewProfile" class="view-section hidden"
+        style="background:#f4f5f8; width: 100%; height: 100%; overflow-y: auto;">
+        <!-- Header Bar -->
+        <div style="background: var(--primary-green); padding: 20px 30px; color: white;">
+            <h2 style="margin: 0; font-size: 24px; font-weight: 500;">My Account</h2>
+        </div>
+
+        <div class="profile-v3-layout">
+            <!-- Left Column (Avatar & Quick Info) -->
+            <aside class="profile-v3-sidebar">
+                <div class="v3-avatar-wrap" style="position: relative;">
+                    <img id="profileAvatarImg" src=""
+                        style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                    <i id="profileDefaultIcon" class="fa-solid fa-user hero-user-icon"></i>
+                </div>
+                <div class="v3-avatar-actions">
+                    <label for="profileAvatarInput" class="v3-icon-btn" style="cursor: pointer; margin: 0;"
+                        title="Change Photo">
+                        <i class="fa-solid fa-camera"></i>
+                    </label>
+                    <input type="file" id="profileAvatarInput" accept="image/*" style="display: none;">
+
+                    <button class="v3-icon-btn" id="langToggleBtn">
+                        <span id="langToggleText" data-en="த" data-ta="EN"
+                            style="font-size: 14px; font-weight: bold; line-height: 1;">த</span>
+                    </button>
+                    <button class="v3-icon-btn" id="menuLogoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"
+                            style="transform: rotate(180deg);"></i></button>
+                </div>
+            </aside>
+
+            <!-- Right Column (Form) -->
+            <section class="profile-v3-content">
+                <h3 class="v3-section-title">Personal Information</h3>
+
+                <form class="v3-profile-form" id="profileForm">
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label>User Name</label>
+                            <input type="text" id="profileUserName" placeholder="Community Volunteer">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Email</label>
+                            <input type="email" id="profileEmail" value="user@maduraicorp.gov.in" readonly
+                                style="background: #f9f9f9; cursor: not-allowed;">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Phone Number</label>
+                            <input type="tel" id="profilePhone" placeholder="+91 98765 43210">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" id="profileAddress" placeholder="Madurai, Tamil Nadu">
+                    </div>
+
+                    <!-- Mini Stats Cards for Waste History and Points -->
+                    <div class="profile-stats-container"
+                        style="display: flex; gap: 15px; margin-top: 20px; margin-bottom: 20px;">
+                        <div class="profile-stat-box"
+                            style="flex: 1; background: #e8f5e9; padding: 15px; border-radius: 12px; border: 1px solid #c8e6c9;">
+                            <div style="font-size: 12px; color: #2e7d32; font-weight: bold; text-transform: uppercase;">
+                                Waste History</div>
+                            <div style="font-size: 20px; font-weight: 800; color: #1b5e20; margin-top: 5px;"
+                                id="profileWasteHistory">0 kg</div>
+                        </div>
+                        <div class="profile-stat-box"
+                            style="flex: 1; background: #fff8e1; padding: 15px; border-radius: 12px; border: 1px solid #ffecb3;">
+                            <div style="font-size: 12px; color: #f57f17; font-weight: bold; text-transform: uppercase;">
+                                Points / Rewards</div>
+                            <div style="font-size: 20px; font-weight: 800; color: #e65100; margin-top: 5px;"
+                                id="profilePointsReward">0 pts</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 15px; align-items: center; margin-top: 10px;">
+                        <button type="button" id="saveProfileBtn" class="btn-primary">Save Profile</button>
+                        <span id="profileSaveStatus"
+                            style="font-size: 13px; color: var(--success); font-weight: 500; display: none;"><i
+                                class="fa-solid fa-check"></i> Saved successfully</span>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; color: #aaa; font-size: 12px;">App Version
+            3.0.0 (Desktop)</div>
+        <div style="height: 100px;"></div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active" data-tab="Home">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="Map">
+            <i class="fa-regular fa-map"></i>
+            <span>Map</span>
+        </a>
+
+        <!-- Central Action Button -->
+        <div class="nav-center-action">
+            <button id="openCameraBtn" class="btn-center">
+                <i class="fa-solid fa-camera"></i>
+                <span class="btn-center-label">Start Cleanup</span>
+            </button>
+        </div>
+
+        <a href="#" class="nav-item" data-tab="Rewards">
+            <i class="fa-solid fa-gift"></i>
+            <span>Rewards</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="Profile">
+            <i class="fa-regular fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <!-- REPORT OPTIONS MODAL -->
+    <div id="reportOptionsModal" class="modal-overlay hidden" style="justify-content: flex-end; padding-bottom: 20px;">
+        <div class="options-card"
+            style="background: white; border-radius: 20px; padding: 25px; margin: 0 15px; animation: slideUp 0.3s ease-out; box-shadow: 0 -10px 40px rgba(0,0,0,0.15);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="font-size: 20px;">Choose Report Method</h3>
+                <button id="closeOptionsBtn" class="btn-ghost" style="color: #333;"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <button id="chooseCameraBtn" class="btn-primary-large"
+                    style="border-radius: 12px; justify-content: flex-start; padding: 15px 20px; background: linear-gradient(135deg, #1976D2, #2196F3); margin-bottom: 0;">
+                    <i class="fa-solid fa-camera" style="font-size: 20px; width: 30px;"></i>
+                    <div style="text-align: left;">
+                        <div style="font-weight: bold; font-size: 16px;">Live Camera</div>
+                        <div style="font-size: 12px; font-weight: normal; opacity: 0.8;">Instant GPS
+                            locked capture
+                        </div>
+                    </div>
+                </button>
+
+                <label for="imageUploadInput" class="btn-primary-large"
+                    style="border-radius: 12px; justify-content: flex-start; padding: 15px 20px; cursor: pointer; background: linear-gradient(135deg, #F57C00, #FF9800); margin-bottom: 0;">
+                    <i class="fa-solid fa-images" style="font-size: 20px; width: 30px;"></i>
+                    <div style="text-align: left;">
+                        <div style="font-weight: bold; font-size: 16px;">Upload Gallery Photo</div>
+                        <div style="font-size: 12px; font-weight: normal; opacity: 0.8;">Requires location metadata
+                            (EXIF)</div>
+                    </div>
+                </label>
+                <input type="file" id="imageUploadInput" accept="image/*" style="display: none;">
+            </div>
+        </div>
+    </div>
+
+    <!-- LIVE CAMERA MODAL -->
+    <div id="cameraModal" class="modal-overlay hidden">
+        <div class="camera-container">
+            <!-- Viewfinder Header -->
+            <div class="camera-header">
+                <button id="closeCameraBtn" class="btn-icon"><i class="fa-solid fa-xmark"></i></button>
+                <span>Live Report</span>
+                <i class="fa-solid fa-location-dot gps-icon blink" id="gpsStatusIcon"></i>
+            </div>
+
+            <!-- Video Stream -->
+            <div class="video-wrapper" style="position: relative;">
+                <video id="liveVideo" autoplay playsinline></video>
+                <!-- Live YOLO Tracking Overlay -->
+                <canvas id="yoloCanvas" class="hidden"
+                    style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:20;"></canvas>
+
+                <!-- Bounding Box Guidance Overlay -->
+                <div class="bounding-box-overlay hidden" id="boundingBox">
+                    <div class="bb-corner tl"></div>
+                    <div class="bb-corner tr"></div>
+                    <div class="bb-corner bl"></div>
+                    <div class="bb-corner br"></div>
+                    <div class="bb-text">Align Garbage Here</div>
+                </div>
+                <!-- AI Scanning Effect Overlay -->
+                <div class="scanning-line hidden" id="scanEffect"></div>
+                <!-- Captured Image Preview Overlay -->
+                <canvas id="photoCanvas" class="hidden" style="position:relative; z-index:30;"></canvas>
+            </div>
+
+            <!-- Camera UI Controls -->
+            <div class="camera-controls">
+                <p id="cameraStatusText" class="status-text">Acquiring GPS Signal...</p>
+                <button id="captureBtn" class="btn-capture disabled" disabled>
+                    <div class="capture-inner"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI VERIFICATION MODAL -->
+    <div id="verificationModal" class="modal-overlay hidden">
+        <div class="verification-card glassmorphism">
+            <h3><i class="fa-solid fa-cloud-arrow-up text-green"></i> Processing Verification</h3>
+
+            <div class="stepper">
+                <div class="step" id="stepGps">
+                    <i class="fa-solid fa-spinner fa-spin step-icon"></i>
+                    <span>Verifying Embedded GPS Location</span>
+                </div>
+                <div class="step pending" id="stepSubmit">
+                    <i class="fa-regular fa-circle step-icon"></i>
+                    <span>Submitting to Corporation Database</span>
+                </div>
+                <div class="step pending" id="stepEmail">
+                    <i class="fa-regular fa-circle step-icon"></i>
+                    <span>Notifying corporationmunicipal6@gmail.com</span>
+                </div>
+            </div>
+
+            <div id="verificationResult" class="verification-result hidden">
+                <p id="resultMessage" class="result-message"></p>
+                <button id="closeVerificationBtn" class="btn-primary mt-3 w-100 hidden">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load EXIF Library for extracting GPS from user images -->
+    <script src="https://cdn.jsdelivr.net/npm/exifr/dist/lite.umd.js"></script>
+
+    <!-- Load TensorFlow.js and COCO-SSD for Live YOLO Detection -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+
+    <script type="module" src="dashboard.js"></script>
+    <!-- Load Google Maps API -->
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC6OdgvhfI4uRDJzw3WZxs6f-TBVx6F38s&callback=initMap"></script>
+</body>
+
+</html>

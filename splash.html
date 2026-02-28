@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thooimai Puratchi</title>
+    <link rel="icon" href="app_logo.png">
+    <!-- Modern typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #37804B;
+            --primary-green-hover: #296038;
+            --dark-green: #1F452A;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Top status bar simulation space for mobile */
+        .status-space {
+            padding-top: 40px;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            margin-top: -10vh;
+            /* Adjust vertical centering */
+        }
+
+        .logo-container {
+            width: 100%;
+            max-width: 320px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .logo-image {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .branding {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 0 10px;
+        }
+
+        .main-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--dark-green);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        /* Decorative line under main title */
+        .main-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 10%;
+            width: 80%;
+            height: 1px;
+            background-color: var(--dark-green);
+        }
+
+        /* Secondary decorative line */
+        .main-title::before {
+            content: '';
+            position: absolute;
+            bottom: 3px;
+            left: 10%;
+            width: 80%;
+            height: 0.5px;
+            background-color: var(--dark-green);
+            opacity: 0.5;
+        }
+
+        .subtitle-top {
+            font-size: 13px;
+            font-weight: 400;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        .subtitle-bottom {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-green);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            max-width: 350px;
+            justify-content: center;
+        }
+
+        .btn-lang {
+            flex: 1;
+            background-color: var(--primary-green);
+            color: var(--white);
+            border: none;
+            padding: 16px 0;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-lang:hover {
+            background-color: var(--primary-green-hover);
+        }
+
+        /* Skyline element at the bottom */
+        .skyline-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 15vh;
+            /* Responsive height */
+            background-color: transparent;
+            display: flex;
+            align-items: flex-end;
+            z-index: 10;
+            opacity: 0.6;
+        }
+
+        .skyline {
+            width: 100%;
+            height: 100%;
+            background-color: #9cbca4;
+            /* Muted skyline green */
+            /* Using CSS clip-path to generate a silhouette-like skyline */
+            clip-path: polygon(0% 100%, 0% 90%, 5% 90%, 5% 65%, 10% 65%, 12% 85%,
+                    15% 85%, 17% 95%, 20% 95%, 22% 88%, 25% 88%, 26% 92%,
+                    29% 92%, 31% 80%, 35% 80%, 37% 95%, 42% 95%, 44% 90%,
+                    48% 90%, 50% 93%, 55% 93%, 57% 85%, 60% 85%, 62% 60%,
+                    68% 60%, 70% 90%, 75% 90%, 77% 95%, 82% 95%, 84% 85%,
+                    88% 85%, 90% 92%, 95% 92%, 97% 88%, 100% 88%, 100% 100%);
+        }
+
+        /* A second darker layer for depth */
+        .skyline.bg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            background-color: #79a385;
+            z-index: -1;
+            clip-path: polygon(0% 100%, 0% 85%, 3% 85%, 7% 70%, 12% 70%, 14% 90%,
+                    18% 90%, 20% 93%, 24% 93%, 26% 82%, 30% 82%, 33% 90%,
+                    38% 90%, 41% 85%, 45% 85%, 47% 95%, 52% 95%, 54% 88%,
+                    58% 88%, 60% 75%, 65% 75%, 67% 65%, 72% 65%, 75% 85%,
+                    80% 85%, 82% 92%, 86% 92%, 88% 80%, 92% 80%, 95% 90%,
+                    98% 90%, 100% 85%, 100% 100%);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="status-space"></div>
+
+    <div class="main-content">
+        <div class="logo-container">
+            <!-- Sleek vector logo mimicking the Meenakshi Temple emblem -->
+            <img src="app_logo.png" alt="Thooimai Puratchi Logo" class="logo-image">
+        </div>
+
+        <div class="branding">
+            <h1 class="main-title">THOOIMAI PURATCHI</h1>
+            <p class="subtitle-top">Powered by Intelligence, Driven by Community</p>
+            <p class="subtitle-bottom">AI-Verified Plastic Waste Cleanup for Madurai</p>
+        </div>
+
+        <div class="action-buttons">
+            <button onclick="setLanguage('en')" class="btn-lang">English</button>
+            <button onclick="setLanguage('ta')" class="btn-lang">தமிழ்</button>
+        </div>
+    </div>
+
+    <!-- Bottom decorative skyline matching the design -->
+    <div class="skyline-container">
+        <div class="skyline bg"></div>
+        <div class="skyline"></div>
+    </div>
+
+    <script>
+        function setLanguage(lang) {
+            // Save selection to localStorage
+            localStorage.setItem('appLanguage', lang);
+            // Navigate to login page
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+
+</html>
